@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from DataServiceFile import DBDataService, IDataService
 
 import os
 
@@ -18,6 +19,10 @@ db = SQLAlchemy(app)
 # Initialise ma
 ma = Marshmallow(app)
 
+ds = DBDataService()
+# ds.add_user(1, "pauligno")
+
+
 # Product Class/Model
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -31,6 +36,7 @@ class Product(db.Model):
         self.description = description
         self.price = price
         self.qty = qty
+
 
 # Product Schema
 class ProductSchema(ma.Schema):
@@ -58,13 +64,18 @@ def add_product():
 
     return product_schema.jsonify(new_product)
 
+
 # Get all Products
 @app.route('/product', methods=['GET'])
 def get_products():
     all_products = Product.query.all()
     result = products_schema.dump(all_products)
 
+    ds.save_message("hi", "hi", 3)
+    print("\n\n\n %s \n\n\n" % ds.get_history(3))
+
     return jsonify(result.data)
+
 
 # Get Single Products
 @app.route('/product/<id>', methods=['GET'])
@@ -72,6 +83,7 @@ def get_product(id):
     product = Product.query.get(id)
 
     return product_schema.jsonify(product)
+
 
 # Update a product
 @app.route('/product/<id>', methods=['PUT'])
@@ -91,6 +103,7 @@ def update_product(id):
     db.session.commit()
 
     return product_schema.jsonify(product)
+
 
 # Delete Product
 @app.route('/product/<id>', methods=['DELETE'])
