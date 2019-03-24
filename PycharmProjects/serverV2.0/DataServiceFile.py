@@ -70,6 +70,19 @@ class DBDataService(IDataService):
         self.session.commit()
         self.session.close()
 
+    def add_user_withoutID(self, username):
+        newUserId = randint(1000000, 1000000000)
+        while (self.session.query(self.User).filter(self.User.id == newUserId).count() > 0):
+            newUserId = randint(1000000, 1000000000)
+        user = self.User()
+        user.id = newUserId
+        user.username = username
+        user.messageHistory = "noMessagesYet"
+        self.session.add(user)
+        self.session.commit()
+        self.session.close()
+        return newUserId
+
     def save_message(self, client_message, bot_answer, client_id):
         user = self.session.query(self.User).filter(self.User.id == client_id)
 
@@ -77,3 +90,17 @@ class DBDataService(IDataService):
 
         self.session.commit()
         self.session.close()
+
+    def del_history(self, client_id):
+        user = self.session.query(self.User).filter(self.User.id == client_id)
+        user[0].messageHistory = ""
+        self.session.commit()
+        self.session.close()
+
+    def find_usr(self, username):
+        user = self.session.query(self.User).filter(self.User.username == username)
+        if (user.count() > 0):
+            return user[0].id
+        else:
+            id = self.add_user_withoutID(username)
+            return id

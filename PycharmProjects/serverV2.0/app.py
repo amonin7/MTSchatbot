@@ -1,12 +1,90 @@
-from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_marshmallow import Marshmallow
+from flask import Flask, request
 from DataServiceFile import DBDataService, IDataService
-
-import os
+# import pickle
+# from model import *
+#
+# with open('./data/seq2seq.pk', 'rb') as f:
+#     data = pickle.load(f)
+# input_lang = data['input_lang']
+# output_lang = data['output_lang']
+# encoder = data['encoder']
+# attn_decoder = data['attn_decoder']
+# hidden_size = encoder.hidden_size
+#
+#
+# print(get_answer("привет", input_lang, output_lang, encoder, attn_decoder))
 
 # Init app
 app = Flask(__name__)
+
+# Initialize data service
+ds = DBDataService()
+
+
+
+@app.route('/help', methods=['GET'])
+def help():
+    return "-help\n-save_message\n-get_history\n-add_user\nsmth else\n"
+
+
+@app.route('/get_history/<id>', methods=['GET'])
+def get_history(id):
+    return ds.get_history(id)
+
+
+@app.route('/get_ans/<id>', methods=['POST'])
+def get_ans(id):
+    s = str(request.get_data())
+    # print(s[2:-1])
+    return "Yeah" + s
+    # ds.save_message(s, "wow cool", id)
+    # return ds.get_history(id)
+
+
+@app.route('/del/<id>', methods=['GET'])
+def del_history(id):
+    ds.del_history(id)
+    return ds.get_history(id)
+
+
+@app.route('/add_user', methods=['POST'])
+def add_user():
+    name = str(request.get_data())
+    usrName = name[2:-1]
+    newUserID = ds.add_user_withoutID(usrName)
+    return str(newUserID)
+
+
+@app.route('/find_user', methods=['POST'])
+def find_user():
+    name = str(request.get_data())
+    usrName = name[2:-1]
+    newUserID = ds.find_usr(usrName)
+    return str(newUserID)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''
+
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 # Database
@@ -18,10 +96,6 @@ db = SQLAlchemy(app)
 
 # Initialise ma
 ma = Marshmallow(app)
-
-ds = DBDataService()
-# ds.add_user(1, "pauligno")
-
 
 # Product Class/Model
 class Product(db.Model):
@@ -47,7 +121,6 @@ class ProductSchema(ma.Schema):
 # Init schema
 product_schema = ProductSchema(strict=True)
 products_schema = ProductSchema(many=True, strict=True)
-
 
 # Create a product
 @app.route('/product', methods=['POST'])
@@ -119,4 +192,4 @@ def delete_product(id):
 if __name__ == '__main__':
     app.run(debug=True)
 
-
+'''

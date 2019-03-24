@@ -10,7 +10,6 @@ class MainClass():
         pass
 
     def on_message_recived(self, message, client_id):
-
         history = self.data_service.get_history(client_id)
         print(history)
         # answer = self.create_answer(message, history)
